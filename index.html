@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  
+  <title>Proxis AI | Proxineon AI Personal Assistant</title>
+  <meta name="description" content="Proxis AI (Proxineon AI) - An intelligent, intuitive, and versatile AI personal assistant built by RonzDavil Organisation." />
+  <meta name="keywords" content="Proxis AI, Proxineon AI, Proxis, Proxis Vercel, RonzDavil AI, Artificial Intelligence" />
+  <meta name="author" content="RonzDavil Organisation" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://proxis.vercel.app/" />
+  <meta property="og:title" content="Proxis AI | Proxineon AI Personal Assistant" />
+  <meta property="og:description" content="An ultra-intelligent AI personal assistant by RonzDavil Organisation." />
+  <meta property="og:image" content="https://proxis.vercel.app/ai_icon.png" />
+
+  <link rel="icon" type="image/png" href="ai_icon.png" />
+  <link rel="apple-touch-icon" href="ai_icon.png" />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+    
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0d0d0d;
+      color: #ececec;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    .composer-bg {
+      background-color: #1c1c1c;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .composer-bg:focus-within {
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.6);
+    }
+
+    @keyframes msgIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .msg-animate {
+      animation: msgIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .code-container {
+      position: relative;
+      margin-top: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    pre code.hljs {
+      font-family: 'Fira Code', monospace !important;
+      font-size: 0.82rem;
+      padding: 1rem 1.25rem;
+      background: #141414 !important;
+      overflow-x: auto;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+
+    .selectable-text { user-select: text; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .ai-dp {
+      object-fit: cover;
+      border-radius: 9999px;
+    }
+
+    .typing-dot {
+      animation: typing 1.4s infinite ease-in-out both;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1.1); }
+    }
+  </style>
+</head>
+<body class="flex flex-col antialiased bg-[#0d0d0d]">
+
+  <header class="h-14 px-4 sticky top-0 z-30 flex items-center justify-between border-b border-white/[0.08] bg-[#0d0d0d]/85 backdrop-blur-xl shrink-0">
+    <div class="flex items-center gap-2.5">
+      <img src="ai_icon.png" alt="Proxis AI Logo" class="w-8 h-8 ai-dp border border-white/10 shadow-sm shrink-0" onError="this.src='https://api.iconify.design/lucide:bot.svg?color=%23ffffff'" />
+      <div class="flex items-center gap-1.5">
+        <h1 class="font-semibold text-sm tracking-tight text-white">Proxis AI</h1>
+        <span class="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">GEMINI POWERED</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-1">
+      <button id="clearChatBtn" title="New Chat" class="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-95">
+        <i class="fa-regular fa-pen-to-square text-sm"></i>
+      </button>
+      <button id="settingsBtn" title="Settings" class="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-95">
+        <i class="fa-solid fa-sliders text-sm"></i>
+      </button>
+    </div>
+  </header>
+
+  <main id="chatContainer" class="flex-1 overflow-y-auto px-4 py-6 space-y-6 no-scrollbar">
+    <div id="heroCard" class="flex flex-col items-center justify-center min-h-[65vh] text-center space-y-4 msg-animate">
+      <div class="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-1 shadow-2xl">
+        <img src="ai_icon.png" alt="Proxis AI Avatar" class="w-full h-full ai-dp" onError="this.src='https://api.iconify.design/lucide:bot.svg?color=%23ffffff'" />
+      </div>
+      <div class="space-y-1">
+        <h2 id="welcomeGreeting" class="text-xl font-semibold text-white tracking-tight">What's on your mind today?</h2>
+        <p class="text-xs text-gray-400">Proxis AI • Powered by RonzDavil Organisation & Gemini</p>
+      </div>
+    </div>
+
+    <div id="messagesList" class="max-w-2xl mx-auto space-y-6 pb-6"></div>
+  </main>
+
+  <footer class="p-3 bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d]/95 to-transparent z-20 shrink-0">
+    <div class="max-w-2xl mx-auto">
+      <div id="attachmentsPreview" class="hidden flex gap-2 overflow-x-auto pb-2 px-1 no-scrollbar"></div>
+
+      <div class="composer-bg rounded-[26px] p-2 flex items-end gap-2 shadow-2xl transition-all duration-300">
+        <input type="file" id="fileInput" multiple class="hidden" accept="image/*,.pdf,.txt,.js,.html,.css,.json,.py,.java,.cpp,.c,.cs,.md" />
+
+        <button id="attachBtn" title="Attach File or Image" class="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all shrink-0 mb-0.5 active:scale-95">
+          <i class="fa-solid fa-paperclip text-sm"></i>
+        </button>
+
+        <textarea id="userInput" rows="1" placeholder="Message Proxis AI..." class="flex-1 bg-transparent border-0 resize-none px-2 py-2 text-sm text-white placeholder-gray-500 focus:outline-none max-h-36 no-scrollbar"></textarea>
+
+        <button id="sendBtn" class="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center disabled:opacity-30 transition-all duration-200 shrink-0 mb-0.5 active:scale-90 shadow-md">
+          <i class="fa-solid fa-arrow-up text-sm font-bold"></i>
+        </button>
+      </div>
+
+      <p class="text-[10px] text-center text-gray-500 mt-2 font-medium">Proxis AI • Developed by RonzDavil Organisation</p>
+    </div>
+  </footer>
+
+  <div id="onboardingModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#171717] w-full max-w-sm rounded-3xl p-6 space-y-5 border border-white/10 shadow-2xl msg-animate text-center">
+      <div class="w-16 h-16 mx-auto rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-1">
+        <img src="ai_icon.png" alt="Proxis AI Icon" class="w-full h-full ai-dp" onError="this.src='https://api.iconify.design/lucide:bot.svg?color=%23ffffff'" />
+      </div>
+
+      <div class="space-y-1">
+        <h3 class="font-semibold text-white text-base">Welcome to Proxis AI</h3>
+        <p class="text-xs text-gray-400">Aapka naam kya hai?</p>
+      </div>
+      
+      <div class="space-y-3">
+        <input type="text" id="userNameInput" placeholder="Enter your name..." class="w-full px-4 py-3 rounded-2xl bg-[#212121] text-sm text-white border border-white/10 focus:outline-none focus:border-white/30 text-center" />
+        <button id="saveNameBtn" class="w-full py-3 rounded-2xl bg-white text-black font-semibold text-xs active:scale-95 transition-all">
+          Get Started
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-xl z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#171717] w-full max-w-sm rounded-3xl p-6 space-y-5 border border-white/10 shadow-2xl msg-animate">
+      <div class="flex justify-between items-center">
+        <h3 class="font-semibold text-white text-sm flex items-center gap-2">
+          <i class="fa-solid fa-user text-gray-400"></i> Profile Settings
+        </h3>
+        <button id="closeSettings" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <label class="text-xs text-gray-400 font-medium">Your Name</label>
+          <input type="text" id="settingsNameInput" class="w-full px-4 py-3 rounded-2xl bg-[#212121] text-xs text-white border border-white/10 focus:outline-none focus:border-white/30" />
+        </div>
+      </div>
+
+      <button id="saveSettings" class="w-full py-3 rounded-2xl bg-white text-black font-semibold text-xs active:scale-95 transition-all">
+        Save Changes
+      </button>
+    </div>
+  </div>
+
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let userName = localStorage.getItem('PROXINEON_USER_NAME') || '';
+    let attachedFiles = [];
+    let conversationHistory = [];
+
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const attachBtn = document.getElementById('attachBtn');
+    const fileInput = document.getElementById('fileInput');
+    const attachmentsPreview = document.getElementById('attachmentsPreview');
+    const messagesList = document.getElementById('messagesList');
+    const heroCard = document.getElementById('heroCard');
+    const chatContainer = document.getElementById('chatContainer');
+    const welcomeGreeting = document.getElementById('welcomeGreeting');
+
+    const onboardingModal = document.getElementById('onboardingModal');
+    const userNameInput = document.getElementById('userNameInput');
+    const saveNameBtn = document.getElementById('saveNameBtn');
+
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettings = document.getElementById('closeSettings');
+    const saveSettings = document.getElementById('saveSettings');
+    const settingsNameInput = document.getElementById('settingsNameInput');
+    const clearChatBtn = document.getElementById('clearChatBtn');
+
+    attachBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files);
+      for (const file of files) {
+        if (file.type.startsWith('image/')) {
+          const base64 = await readFileAsDataURL(file);
+          attachedFiles.push({ type: 'image', name: file.name, data: base64 });
+        } else if (file.type === 'application/pdf') {
+          const text = await extractTextFromPDF(file);
+          attachedFiles.push({ type: 'text', name: file.name, data: text });
+        } else {
+          const text = await readFileAsText(file);
+          attachedFiles.push({ type: 'text', name: file.name, data: text });
+        }
+      }
+      renderAttachmentPreviews();
+      fileInput.value = '';
+    });
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function readFileAsText(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsText(file);
+      });
+    }
+
+    async function extractTextFromPDF(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let text = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(item => item.str).join(' ') + '\n';
+      }
+      return text;
+    }
+
+    function renderAttachmentPreviews() {
+      if (attachedFiles.length === 0) {
+        attachmentsPreview.classList.add('hidden');
+        attachmentsPreview.innerHTML = '';
+        return;
+      }
+
+      attachmentsPreview.classList.remove('hidden');
+      attachmentsPreview.innerHTML = '';
+
+      attachedFiles.forEach((file, index) => {
+        const chip = document.createElement('div');
+        chip.className = 'flex items-center gap-2 bg-[#222222] border border-white/10 px-3 py-1.5 rounded-xl text-xs text-gray-200 shrink-0';
+        
+        const icon = file.type === 'image' ? 'fa-image' : 'fa-file-code';
+        chip.innerHTML = `
+          <i class="fa-solid ${icon} text-gray-400"></i>
+          <span class="max-w-[120px] truncate">${file.name}</span>
+          <button class="hover:text-rose-400 ml-1" data-index="${index}"><i class="fa-solid fa-xmark"></i></button>
+        `;
+
+        chip.querySelector('button').addEventListener('click', () => {
+          attachedFiles.splice(index, 1);
+          renderAttachmentPreviews();
+        });
+
+        attachmentsPreview.appendChild(chip);
+      });
+    }
+
+    function checkUserOnboarding() {
+      if (!userName) {
+        onboardingModal.classList.remove('hidden');
+      } else {
+        welcomeGreeting.textContent = `What's on your mind today, ${userName}?`;
+      }
+    }
+
+    saveNameBtn.addEventListener('click', () => {
+      const enteredName = userNameInput.value.trim();
+      if (enteredName) {
+        userName = enteredName;
+        localStorage.setItem('PROXINEON_USER_NAME', userName);
+        welcomeGreeting.textContent = `What's on your mind today, ${userName}?`;
+        onboardingModal.classList.add('hidden');
+      }
+    });
+
+    userInput.addEventListener('input', () => {
+      userInput.style.height = 'auto';
+      userInput.style.height = `${Math.min(userInput.scrollHeight, 144)}px`;
+    });
+
+    settingsBtn.addEventListener('click', () => {
+      settingsNameInput.value = userName;
+      settingsModal.classList.remove('hidden');
+    });
+
+    closeSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
+
+    saveSettings.addEventListener('click', () => {
+      const updatedName = settingsNameInput.value.trim();
+      if (updatedName) {
+        userName = updatedName;
+        localStorage.setItem('PROXINEON_USER_NAME', userName);
+        welcomeGreeting.textContent = `What's on your mind today, ${userName}?`;
+      }
+      settingsModal.classList.add('hidden');
+    });
+
+    clearChatBtn.addEventListener('click', () => {
+      messagesList.innerHTML = '';
+      conversationHistory = [];
+      if (heroCard) heroCard.style.display = 'flex';
+    });
+
+    function processCodeBlocks(container) {
+      container.querySelectorAll('pre code').forEach((block) => {
+        if (block.parentElement.classList.contains('code-container')) return;
+
+        hljs.highlightElement(block);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-container';
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-btn';
+        copyBtn.innerHTML = '<i class="fa-regular fa-copy mr-1"></i> Copy';
+
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(block.innerText).then(() => {
+            copyBtn.innerHTML = '<i class="fa-solid fa-check mr-1 text-emerald-400"></i> Copied!';
+            setTimeout(() => {
+              copyBtn.innerHTML = '<i class="fa-regular fa-copy mr-1"></i> Copy';
+            }, 2000);
+          });
+        });
+
+        block.parentElement.parentNode.insertBefore(wrapper, block.parentElement);
+        wrapper.appendChild(block.parentElement);
+        wrapper.appendChild(copyBtn);
+      });
+    }
+
+    function appendMessage(role, initialText = '') {
+      if (heroCard) heroCard.style.display = 'none';
+
+      const isUser = role === 'user';
+      const msgWrapper = document.createElement('div');
+      msgWrapper.className = `flex ${isUser ? 'justify-end' : 'justify-start'} w-full msg-animate`;
+
+      const msgContainer = document.createElement('div');
+      msgContainer.className = `flex items-start gap-3 max-w-[90%] sm:max-w-[85%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`;
+
+      if (!isUser) {
+        const avatar = document.createElement('img');
+        avatar.src = 'ai_icon.png';
+        avatar.className = 'w-7 h-7 ai-dp border border-white/10 shrink-0 mt-0.5';
+        avatar.onerror = () => { avatar.src = 'https://api.iconify.design/lucide:bot.svg?color=%23ffffff'; };
+        msgContainer.appendChild(avatar);
+      }
+
+      const msgBubble = document.createElement('div');
+      msgBubble.className = `p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+        isUser 
+          ? 'bg-[#2a2a2a] text-white rounded-tr-sm shadow-sm' 
+          : 'text-gray-200 selectable-text space-y-2'
+      }`;
+
+      if (isUser) {
+        msgBubble.textContent = initialText;
+      } else if (initialText) {
+        msgBubble.innerHTML = marked.parse(initialText);
+        processCodeBlocks(msgBubble);
+      } else {
+        msgBubble.innerHTML = `
+          <div class="flex items-center gap-1.5 py-1 text-gray-400">
+            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></span>
+            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></span>
+            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></span>
+          </div>
+        `;
+      }
+
+      msgContainer.appendChild(msgBubble);
+      msgWrapper.appendChild(msgContainer);
+      messagesList.appendChild(msgWrapper);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      return msgBubble;
+    }
+
+    async function handleSend() {
+      const prompt = userInput.value.trim();
+
+      if (!prompt && attachedFiles.length === 0) return;
+
+      const currentFiles = [...attachedFiles];
+      const displayPrompt = prompt + (currentFiles.length > 0 ? ` 📎 (${currentFiles.length} file/s attached)` : '');
+
+      appendMessage('user', displayPrompt);
+
+      const userPayload = {
+        role: 'user',
+        content: prompt,
+        files: currentFiles
+      };
+
+      conversationHistory.push(userPayload);
+
+      userInput.value = '';
+      userInput.style.height = 'auto';
+      sendBtn.disabled = true;
+
+      attachedFiles = [];
+      renderAttachmentPreviews();
+
+      const assistantBubble = appendMessage('assistant', '');
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: conversationHistory,
+            userName: userName
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          assistantBubble.innerHTML = marked.parse(data.reply);
+          processCodeBlocks(assistantBubble);
+          conversationHistory.push({ role: 'assistant', content: data.reply });
+        } else {
+          assistantBubble.textContent = `Error: ${data.error || 'Server processing error.'}`;
+          assistantBubble.classList.add('text-rose-400');
+        }
+
+      } catch (err) {
+        assistantBubble.textContent = `Error: ${err.message || 'Server se connection nahi ho saka.'}`;
+        assistantBubble.classList.add('text-rose-400');
+      } finally {
+        sendBtn.disabled = false;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    });
+
+    checkUserOnboarding();
+  </script>
+</body>
+</html>
+
